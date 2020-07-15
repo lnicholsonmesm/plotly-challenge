@@ -1,44 +1,6 @@
 
 
-
-
-//will need to be a function like updatePlotly
-//get data
-/* =======================================================
-    Make a Promise
-======================================================= */
-var dataImport = d3.json("data/samples.json").then((data) => {
-    //run Function 1
-    console.log(data);
-    let returnedData = data;
-    getIDs(data);
-    return returnedData;
-
-});
-
-/* =======================================================
-    Get Patient IDs / Populate the Dropdown
-======================================================= */
-
-var getIDs = function (data) {
-    //Populate Drop-down with Patient ID
-    // Call the selectData function
-    data.names.forEach(function (data) {
-        // html code to grab and populate code
-        d3.select('#selDataset') //.html(`<option>${data}</option>`)
-            .append("option")
-            .text(`${data}`);
-        //console.log(dataI);
-
-    });
-    //let data = dataImport;
-    selectData(dataImport);    // call the stuff that will call the    function
-};
-/* =======================================================
-    Get the dropdown value and get corresponding data
-======================================================= */
-
-var selectData = function (data2) {
+var selectData = function () {
     // ____________________________________________________
     /* GET dropdown value */
     let subjectID = d3.select("#selDataset option").text();
@@ -47,11 +9,15 @@ var selectData = function (data2) {
 
     // ____________________________________________________
     /* FILTER data for x and y values */
+    d3.json("data/samples.json").then((data2) => {
+        return data2;
+    });
     let samples = data2.samples;
-    let sampleValues = [];
-    let sampleIndices = [];
-    let otuIDs = [];
-    let otuLabels = [];
+    sampleValues = [];
+    sampleIndices = [];
+    otuIDs = [];
+    otuLabels = [];
+    console.log(samples);
     samples.map((data, index) => {
         if (data.id == subjectID) {
             console.log(data);
@@ -107,9 +73,13 @@ var selectData = function (data2) {
 ******************************************************* */
 
 
-function optionChanged(val) {
-    var value = val;
-    console.log(value);
-    console.log(dataImport)
-    //selectData(dataImport);
-};
+
+
+
+doSomething()
+    .then(result => doSomethingElse(result))
+    .then(newResult => doThirdThing(newResult))
+    .then(finalResult => {
+        console.log(`Got the final result: ${finalResult}`);
+    })
+    .catch(failureCallback);
