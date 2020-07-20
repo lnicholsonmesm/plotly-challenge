@@ -3,22 +3,6 @@ let subjectID = '';
 
 //will need to be a function like updatePlotly
 //get data
-/* =======================================================
-    Make a Promise & then get IDs and graph the result.
-======================================================= */
-function getData() {
-    d3.json("data/samples.json").then(result => {
-        //console.log(result);
-        result.names.forEach(function (data) {
-            d3.select('#selDataset') //.html(`<option>${data}</option>`)
-                .append("option")
-                .text(`${data}`);
-        });
-        return result;
-    });
-};
-
-getData();
 
 /* =======================================================
     Build Graph
@@ -38,8 +22,12 @@ function plotGraph(subjectID) {
     // ____________________________________________________
     /* FILTER data for x and y values */
     d3.json("data/samples.json").then(result => {
+        var selector = d3.select("#selDataset");
+        let metadataAdder = d3.select("#sample-metadata")
+        //append []]
+        //append data
         let samples = result.samples;
-
+        let metadata = result.metadata;
         sampleValues = [];
         sampleIndices = [];
         otuIDs = [];
@@ -47,23 +35,44 @@ function plotGraph(subjectID) {
         let bubbleValues = [];
         //console.log(samples);
         samples.map((data, index) => {
+            selector.append("option").text(data.id);
             if (data.id == subjectID) {
+                console.log("data found");
                 //console.log(data);
                 sample_values = data.sample_values;
                 otu_ids = data.otu_ids;
-                console.log(otu_ids);
+                //console.log(otu_ids);
                 labels = data.otu_labels;
                 for (var i = 0; i < sample_values.length; i++) {
                     sampleValues.push({ x: sample_values[i], y: otu_ids[i], labels: labels[i] });
                     // bubbleValues.push({ x: })
                 };
-                //console.log(sampleValues);
             };
         });
-        //console.log(sampleValues);
+        let metadataResults = metadata.filter(object => object.id == subjectID)[0];
+        let metaKey = [];
+        metadataAdder.html("");
+        console.log(Object.entries(metadataResults));
+        Object.entries(metadataResults).forEach(([k, v]) => {
+            metadataAdder.append("h6").text(`${k}: ${v}`);
+            console.log(k);
+        });
+        //metadataAdder.append("h6")
+        //console.log(metadataResults);
+        //console.log(metadataResults[0].map(d => d));
+        //for (let [key, value] of metadataResults[0].entries(object)) {
+        console.log(Object.keys(metadataResults));
+        //};
+        // console.log(`#{key}: ${value}`);
+        //}
+        //metadataResults[0].forEach(([key, value]) => {
+        //   console.log(key);
+        //   metadataAdder.append("h6").text(`${key}: ${value}`);
+        //});
+
         //console.log(index);
         sampleValues.sort(function (a, b) {
-            return parseFloat(b.sample_values) - parseFloat(a.sample_values);
+            return parseFloat(b.x) - parseFloat(a.x);
         });
         //console.log(`sampleVal log ${sampleValues}`);
         dataSlice = sampleValues.slice(0, 10);
@@ -80,7 +89,7 @@ function plotGraph(subjectID) {
             },
             orientation: "h"
         };
-        console.log(trace1);
+        //console.log(trace1);
         // data
         chartData = [trace1];
 
@@ -127,10 +136,14 @@ function plotGraph(subjectID) {
         d3.select("#bar").html("") //<div id="bar"></div>
         Plotly.newPlot("bar", chartData, layout);
 
+        sampleValues.sort(function (a, b) {
+            return parseFloat(a.y) - parseFloat(b.y);
+        });
 
         var trace2 = {
             y: sampleValues.map(d => d.x),
-            x: sampleValues.map(d => 'OTU'.concat(" ", d.y)),
+            x: sampleValues.map(d => d.y),
+            //x: sampleValues.map(d => 'OTU'.concat(" ", d.y)),
             text: dataSlice.map(d => d.labels),
             name: "Your Belly Button Bacteria",
             mode: 'markers',
@@ -146,11 +159,17 @@ function plotGraph(subjectID) {
             title: 'Marker Size',
             showlegend: false,
             height: 600,
-            width: 600
+            width: 600,
+            xaxis: { title: { text: 'OTU ID' } }
         };
 
         d3.select("#bubble").html("") //<div id="bar"></div>
         Plotly.newPlot('bubble', data2, layout2);
+
+        //
+
+        //d3.select("#sample-metadata").html("")
+
     });
 };
 plotGraph('940');
